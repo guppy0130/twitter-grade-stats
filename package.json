@@ -1,0 +1,27 @@
+{
+  "name": "twitter-grade-stats",
+  "version": "0.0.1",
+  "description": "A spinoff of an AP Stats project, now personalized!",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "text-statistics": "^0.1.1",
+    "twit": "^2.2.9"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guppy0130/twitter-grade-stats.git"
+  },
+  "author": "guppy0130",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guppy0130/twitter-grade-stats/issues"
+  },
+  "homepage": "https://github.com/guppy0130/twitter-grade-stats#readme"
+}
