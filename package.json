@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "description": "A spinoff of an AP Stats project, now personalized!",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "hbs": "^4.0.1",
+    "reload": "^2.2.2"
+  },
   "devDependencies": {
     "dotenv": "^5.0.1",
     "express": "^4.16.3",

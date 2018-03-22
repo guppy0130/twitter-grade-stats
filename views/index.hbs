@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+	<head>
+		<title>{{title}}</title>
+	</head>
+	<body>
+		<h1>{{title}}</h1>
+		<table>
+			{{#each tweets}}
+			<tr>
+				<td>{{item text}}</td>
+				<td>{{item gradeLevel}}</td>
+			</tr>
+			{{/each}}
+		</table>
+	</body>
+</html>
