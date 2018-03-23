@@ -1,12 +1,8 @@
-// First get env vars
-require('dotenv').config();
-
 // Dependencies
 const twitter = require('twit');
 const express = require('express');
 const textStatistics = require('text-statistics');
 const hbs = require('hbs');
-const reload = require('reload');
 const port = process.env.PORT || 3000;
 
 const client = new twitter({

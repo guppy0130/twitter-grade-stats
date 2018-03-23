@@ -10,7 +10,6 @@
     "twit": "^2.2.9"
   },
   "devDependencies": {
-    "dotenv": "^5.0.1",
     "reload": "^2.2.2"
   },
   "scripts": {
