@@ -4,14 +4,14 @@
   "description": "A spinoff of an AP Stats project, now personalized!",
   "main": "index.js",
   "dependencies": {
+    "express": "^4.16.3",
     "hbs": "^4.0.1",
-    "reload": "^2.2.2"
+    "text-statistics": "^0.1.1",
+    "twit": "^2.2.9"
   },
   "devDependencies": {
     "dotenv": "^5.0.1",
-    "express": "^4.16.3",
-    "text-statistics": "^0.1.1",
-    "twit": "^2.2.9"
+    "reload": "^2.2.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
