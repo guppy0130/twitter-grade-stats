@@ -16,41 +16,12 @@ const client = new twitter({
 });
 
 const params = {
-	screen_name: 'yanglangthang',
 	count: 200,
 	trim_user: true,
 	exclude_replies: false,
 	include_rts: false,
 	tweet_mode: 'extended'
 }
-
-client.get('statuses/user_timeline', params, function(error, tweets, response) {
-    var cleanSentenceArr = [],
-        gradeArr = [],
-		tweetGlobal = [];
-	if (error) {
-		console.log(error);
-		return
-	}
-    tweets.forEach(function(element, index, array) {
-        var cleanedSentence = cleanText(element.full_text);
-		if (cleanedSentence == ' ') {
-			return;
-		}
-        var gradeLevel = textStatistics(cleanedSentence).fleschKincaidGradeLevel();
-		gradeLevel = gradeLevel > 0 ? gradeLevel : 0;
-        gradeArr.push(gradeLevel);
-		tweetGlobal.push({
-			id: element.id,
-			text: cleanedSentence,
-			gradeLevel: gradeLevel
-		});
-    });
-	content['tweets'] = tweetGlobal;
-	return gradeArr;
-}).then(function(gradeArr) {
-	//TODO: calculate grades 'n stuff
-});
 
 function cleanText(input) {
     const regexURL = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gim,
@@ -70,12 +41,45 @@ hbs.registerPartials(__dirname + '/views/partials', () => {
 });
 
 hbs.registerHelper('item', function(param) {
-	console.log(param);
 	return param;
+});
+
+const getTweetMiddleware = async (req, res, next) => {
+	console.log('in middleware');
+	params['screen_name'] = req.query.username;
+	client.get('statuses/user_timeline', params)
+		.catch((err) => {})
+		.then((data, response) => {
+			return data.data.map(element => {
+				var cleanedText = cleanText(element.full_text)
+				return {
+					id: element.id,
+					text: cleanedText,
+					grade: textStatistics(cleanedText).fleschKincaidGradeLevel()
+				};
+			});
+		})
+		.then((tweets) => {
+			req.tweets = JSON.stringify(tweets);
+			console.log(tweets);
+			next();
+		});   
+};
+
+user = express.Router();
+user.use('/user/', getTweetMiddleware, async (req, res) => {
+	//console.log('req.data: ' + req.data);
+	res.render('user', {
+		title: req.query.username,
+		tweets: JSON.parse(req.tweets)
+	});
+	console.log('completed rendering');
 });
 
 express()
     .set('view engine', 'hbs')
     .set('views', './views')
     .get('/', (req, res) => res.render('index', content))
+	.get('/user/', user)
     .listen(port, () => console.log(`Listening on ${ port }`));
+

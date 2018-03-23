@@ -5,13 +5,10 @@
 	</head>
 	<body>
 		<h1>{{title}}</h1>
-		<table>
-			{{#each tweets}}
-			<tr>
-				<td>{{item text}}</td>
-				<td>{{item gradeLevel}}</td>
-			</tr>
-			{{/each}}
-		</table>
+		<form action='/user/' method="get">
+			<label for "username">Username: </label>
+			<input id="username" type="text" name="username" value="handle without @">
+			<input type="submit">
+		</form>
 	</body>
 </html>
