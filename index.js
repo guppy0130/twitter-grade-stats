@@ -37,7 +37,6 @@ let content = {
 };
 
 hbs.registerPartials(__dirname + '/views/partials', () => {
-	console.log('partials registered');
 });
 
 hbs.registerHelper('item', function(param) {
@@ -45,7 +44,6 @@ hbs.registerHelper('item', function(param) {
 });
 
 const getTweetMiddleware = async (req, res, next) => {
-	console.log('in middleware');
 	params['screen_name'] = req.query.username;
 	client.get('statuses/user_timeline', params)
 		.catch((err) => {})
@@ -61,19 +59,19 @@ const getTweetMiddleware = async (req, res, next) => {
 		})
 		.then((tweets) => {
 			req.tweets = JSON.stringify(tweets);
-			console.log(tweets);
+			next();
+		}).catch(err => {
+			req.tweets = JSON.stringify("An error occured. Are you sure you entered an appropriate handle?");
 			next();
 		});   
 };
 
 user = express.Router();
 user.use('/user/', getTweetMiddleware, async (req, res) => {
-	//console.log('req.data: ' + req.data);
 	res.render('user', {
 		title: req.query.username,
 		tweets: JSON.parse(req.tweets)
 	});
-	console.log('completed rendering');
 });
 
 express()
