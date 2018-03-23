@@ -32,8 +32,8 @@ function cleanText(input) {
 	return result == '.' ? ' ' : result;
 };
 
-let content = {
-    title: 'Testing'
+let index = {
+	title: "Twitter Grade Stats"
 };
 
 hbs.registerPartials(__dirname + '/views/partials', () => {
@@ -69,7 +69,7 @@ const getTweetMiddleware = async (req, res, next) => {
 user = express.Router();
 user.use('/user/', getTweetMiddleware, async (req, res) => {
 	res.render('user', {
-		title: req.query.username,
+		title: req.query.username + "'s Tweets",
 		tweets: JSON.parse(req.tweets)
 	});
 });
@@ -77,7 +77,7 @@ user.use('/user/', getTweetMiddleware, async (req, res) => {
 express()
     .set('view engine', 'hbs')
     .set('views', './views')
-    .get('/', (req, res) => res.render('index', content))
+    .get('/', (req, res) => res.render('index', index))
 	.get('/user/', user)
     .listen(port, () => console.log(`Listening on ${ port }`));
 

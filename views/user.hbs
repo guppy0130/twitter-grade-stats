@@ -1,17 +1,13 @@
-<!doctype html>
-<html>
-	<head>
-		<title>{{title}}'s Tweets</title>
-	</head>
-	<body>
-		<h1>{{title}}</h1>
-		<table>
-			{{#each tweets}}
-			<tr>
-				<td>{{item text}}</td>
-				<td>{{item grade}}</td>
-			</tr>
-			{{/each}}
-		</table>
-	</body>
-</html>
+{{#> base}}
+
+{{#* inline "content"}}
+<table>
+	{{#each tweets}}
+	<tr>
+		<td>{{item text}}</td>
+		<td>{{item grade}}</td>
+	</tr>
+	{{/each}}
+</table>
+{{/inline}}
+{{/base}}

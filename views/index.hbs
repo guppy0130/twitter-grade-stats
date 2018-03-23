@@ -1,14 +1,9 @@
-<!doctype html>
-<html>
-	<head>
-		<title>{{title}}</title>
-	</head>
-	<body>
-		<h1>{{title}}</h1>
-		<form action='/user/' method="get">
-			<label for "username">Username: </label>
-			<input id="username" type="text" name="username" value="handle without @">
-			<input type="submit">
-		</form>
-	</body>
-</html>
+{{#> base}}
+
+{{#* inline "content"}}
+<form action='/user/' method="get">
+	<input id="username" type="text" name="username" placeholder="Twitter handle">
+	<input type="submit">
+</form>
+{{/inline}}
+{{/base}}
