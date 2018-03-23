@@ -7,7 +7,7 @@ const express = require('express');
 const textStatistics = require('text-statistics');
 const hbs = require('hbs');
 const reload = require('reload');
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 
 const client = new twitter({
 	consumer_key: process.env.TwitterConsumerKey,
