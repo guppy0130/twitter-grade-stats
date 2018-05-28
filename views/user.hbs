@@ -28,12 +28,12 @@
 
     /*
      * takes an object of format `{bin: count}` and deconstructs it to
-     * sortedBins, an array of bins in sorted order
+     * sortedBins, an array of bins in sorted order, and
      * sortedCounts, an array of counts in sorted order
      */
 
     function sortAndFlatten(object) {
-        let sortedCounts = [],
+        var sortedCounts = [],
             sortedBins = [];
         sortedBins = Object.keys(object).sort(function(a, b) {
             return a - b;
@@ -51,24 +51,53 @@
         labels: dataBins,
         datasets: [
             {
-                type: 'bar',
-                label: 'Raw Data',
-                data: dataBinCounts,
-                backgroundColor: 'green'
+                type: 'line',
+                label: 'Smooth Graph',
+                data: idealBinCounts,
+                backgroundColor: 'rgba(255, 99, 132, 0.4)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
             },
             {
-                type: 'line',
-                label: 'Idealized',
-                data: idealBinCounts,
-                backgroundColor: 'blue'
+                type: 'bar',
+                label: 'Your Tweets',
+                data: dataBinCounts,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
             }
         ]
+    }
+
+    var userChartOptions = {
+        title: {
+            display: true,
+            text: "Your Tweets' Grade Levels"
+        },
+        tooltips: {
+            mode: 'index'
+        },
+        scales: {
+            xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Grade Level'
+                }
+            }],
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: '# of Tweets'
+                }
+            }]
+        }
     }
 
     var ctx = document.getElementById('user-graph').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'bar',
-        data: userChartData
+        data: userChartData,
+        options: userChartOptions
     });
 </script>
 {{/inline}}
