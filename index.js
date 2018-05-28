@@ -77,48 +77,45 @@ const getTweetMiddleware = async (req, res, next) => {
     }).then((tweets) => {
         if (tweets !== undefined) {
             req.tweets = tweets;
-            gradeArray.sort((a, b) => {return a - b});
-            let bins = {};
-            let ideal = {};
-            for (let i = Math.floor(gradeArray[0]); // min val
-                 i < Math.floor(gradeArray[gradeArray.length - 1] + 1); // max val
-                 i++) {
+            gradeArray.sort((a, b) => {return a - b;});
+            let min = Math.floor(ss.minSorted(gradeArray)),
+                max = Math.ceil(ss.maxSorted(gradeArray)),
+                bins = {},
+                ideal = {},
+                sampMean = ss.mean(gradeArray),
+                sampStdDev = ss.sampleStandardDeviation(gradeArray);
+
+            const getGaussianHeight = (z, mu, sigma) => {
+                // gets the height at z given my and sigma
+                var gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+                z = (z - mu) / sigma;
+                return gaussianConstant * Math.exp(-0.5 * z * z) / sigma;
+            };
+
+            for (let i = min; i < max; i++) {
+                // give bins all values in range
                 bins[i] = 0;
-                ideal[i] = 0;
+                // directly calculate how tall the height ideally is
+                ideal[i] = getGaussianHeight(i, sampMean, sampStdDev) * tweets.length;
             }
+
+            // count how many belong in each bin
             bins = gradeArray.reduce((all, value) => {
                 all[Math.floor(value)]++;
                 return all;
             }, bins);
 
-            const marsaglia = (mean, stdDev) => {
-                let v1, v2, s, multiplier;
-                do {
-                    v1 = 2 * Math.random() - 1; // between -1 and 1
-                    v2 = 2 * Math.random() - 1; // between -1 and 1
-                    s = v1 * v1 + v2 * v2;
-                } while (s >= 1 || s == 0);
-                multiplier = Math.sqrt(-2 * Math.log(s) / s);
-                return (v1 * multiplier * stdDev) + mean;
-            };
-            idealArray = [];
-            for (let i = 0; i < tweets.length * 3; i++) {
-                idealArray.push(marsaglia(ss.mean(gradeArray), ss.sampleStandardDeviation(gradeArray)));
-            }
-            ideal = idealArray.reduce((all, value) => {
-                all[Math.floor(value)]++;
-                return all;
-            }, ideal);
-
             req.stats = {
-                min: ss.minSorted(gradeArray),
-                max: ss.maxSorted(gradeArray),
+                count: tweets.length,
+                min: min,
+                max: max,
                 median: ss.medianSorted(gradeArray),
-                sampMean: ss.mean(gradeArray),
-                sampStdDev: ss.sampleStandardDeviation(gradeArray),
+                sampMean: sampMean,
+                sampStdDev: sampStdDev,
                 bins: JSON.stringify(bins),
                 ideal: JSON.stringify(ideal)
-            }
+            };
+
             next();
         } else {
             Promise.reject().catch(() => {});

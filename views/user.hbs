@@ -45,7 +45,7 @@
     }
 
     var [dataBins, dataBinCounts] = sortAndFlatten(data);
-    var [normalBins, normalBinCounts] = sortAndFlatten(ideal);
+    var [idealBins, idealBinCounts] = sortAndFlatten(ideal);
 
     var userChartData = {
         labels: dataBins,
@@ -59,7 +59,7 @@
             {
                 type: 'line',
                 label: 'Idealized',
-                data: normalBinCounts,
+                data: idealBinCounts,
                 backgroundColor: 'blue'
             }
         ]
