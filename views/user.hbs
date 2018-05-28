@@ -1,13 +1,75 @@
 {{#> base}}
 
 {{#* inline "content"}}
+
+<div id="user-graph-container">
+    <canvas id="user-graph"></canvas>
+</div>
+{{#each stats}}
+<p>{{@key}}: {{this}}</p>
+{{/each}}
 <table>
 	{{#each tweets}}
 	<tr>
-		<td>{{item text}}</td>
-		<td>{{item grade}}</td>
+		<td>{{text}}</td>
+		<td>{{grade}}</td>
 	</tr>
 	{{/each}}
 </table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
+<script>
+    var min = {{{stats.min}}},
+        max = {{{stats.max}}},
+        sampMean = {{{stats.sampMean}}},
+        sampStdDev = {{{stats.sampStdDev}}},
+        data = {{{stats.bins}}},
+        ideal = {{{stats.ideal}}};
+
+    /*
+     * takes an object of format `{bin: count}` and deconstructs it to
+     * sortedBins, an array of bins in sorted order
+     * sortedCounts, an array of counts in sorted order
+     */
+
+    function sortAndFlatten(object) {
+        let sortedCounts = [],
+            sortedBins = [];
+        sortedBins = Object.keys(object).sort(function(a, b) {
+            return a - b;
+        });
+        sortedBins.forEach(function(item) {
+            sortedCounts.push(object[item]);
+        });
+        return [sortedBins, sortedCounts];
+    }
+
+    var [dataBins, dataBinCounts] = sortAndFlatten(data);
+    var [normalBins, normalBinCounts] = sortAndFlatten(ideal);
+
+    var userChartData = {
+        labels: dataBins,
+        datasets: [
+            {
+                type: 'bar',
+                label: 'Raw Data',
+                data: dataBinCounts,
+                backgroundColor: 'green'
+            },
+            {
+                type: 'line',
+                label: 'Idealized',
+                data: normalBinCounts,
+                backgroundColor: 'blue'
+            }
+        ]
+    }
+
+    var ctx = document.getElementById('user-graph').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: userChartData
+    });
+</script>
 {{/inline}}
 {{/base}}
