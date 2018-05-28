@@ -8,7 +8,8 @@
 {{#each stats}}
 <p>{{@key}}: {{this}}</p>
 {{/each}}
-<table>
+<button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets</button>
+<table id="tweet-table">
 	{{#each tweets}}
 	<tr>
 		<td>{{text}}</td>
@@ -19,6 +20,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
 <script>
+    /* GRAPH STUFF */
     var min = {{{stats.min}}},
         max = {{{stats.max}}},
         sampMean = {{{stats.sampMean}}},
@@ -99,6 +101,21 @@
         data: userChartData,
         options: userChartOptions
     });
+
+    /* DISPLAY STUFF */
+    function toggleTweetTable() {
+        var tweetTable = document.getElementById('tweet-table').style.display;
+        if (tweetTable == '' || tweetTable == 'table') {
+            document.getElementById('tweet-table').style.display = 'none';
+            document.getElementById('tweet-table-toggle').innerText = 'View Tweets';
+        } else {
+            document.getElementById('tweet-table').style.display = 'table';
+            document.getElementById('tweet-table-toggle').innerText = 'Hide Tweets';
+        }
+    }
+    // show by default, then hide because it's kinda big
+    toggleTweetTable();
+
 </script>
 {{/inline}}
 {{/base}}
