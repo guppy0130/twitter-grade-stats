@@ -22,7 +22,7 @@
     input {
         font-family: 'sunflower', sans-serif;
     }
-    input[type="text"] {
+    input:not([type]) {
         width: calc(100% - 0.8em);
         margin-bottom: 1em;
         border: none;
@@ -50,7 +50,7 @@
 
 {{#* inline "content"}}
 <form action='/user/' method="get">
-	<input id="username" type="text" name="username" placeholder="Twitter handle">
+	<input id="username" name="username" placeholder="Twitter handle">
 	<input type="submit">
 </form>
 {{/inline}}
