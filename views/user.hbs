@@ -1,30 +1,62 @@
 {{#> base}}
 
+{{#* inline "styles"}}
+<style>
+    td, th {
+        border: 1px solid black;
+        padding: 0.2em;
+    }
+    table {
+        margin-top: 1em;
+        border-collapse: collapse;
+    }
+    .table-grade-entry {
+        text-align: right;
+    }
+</style>
+{{/inline}}
+
 {{#* inline "content"}}
 
 <div id="user-graph-container">
     <canvas id="user-graph"></canvas>
 </div>
-{{#each stats}}
-<p>{{@key}}: {{this}}</p>
-{{/each}}
+
+<h2>Quick Stats</h2>
+<ul>
+    <li>Count: {{{stats.count}}}</li>
+    <li>Min: {{{stats.min}}}</li>
+    <li>Max: {{{stats.max}}}</li>
+    <li>Mean: {{{stats.sampMean}}}</li>
+    <li>Standard Deviation: {{{stats.sampStdDev}}}</li>
+</ul>
+
+<h2>Do I Tweet With Bigger Words than a 5th Grader?</h2>
+<p id="fifth-grade-boolean"></p>
+
 <button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets</button>
 <table id="tweet-table">
+    <tr>
+        <th>Tweet</th>
+        <th>Grade</th>
+    </tr>
 	{{#each tweets}}
 	<tr>
 		<td>{{text}}</td>
-		<td>{{grade}}</td>
+		<td class="table-grade-entry">{{grade}}</td>
 	</tr>
 	{{/each}}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.7.1/jstat.min.js" integrity="sha256-Rtwg0oi/KB80JyxnJGWz/zWwjIBgDchFFBnenkosAfA=" crossorigin="anonymous"></script>
 <script>
     /* GRAPH STUFF */
     var min = {{{stats.min}}},
         max = {{{stats.max}}},
         sampMean = {{{stats.sampMean}}},
         sampStdDev = {{{stats.sampStdDev}}},
+        count = {{{stats.count}}},
         data = {{{stats.bins}}},
         ideal = {{{stats.ideal}}};
 
@@ -54,7 +86,7 @@
         datasets: [
             {
                 type: 'line',
-                label: 'Smooth Graph',
+                label: 'Normal Dist Based on Sample Stats',
                 data: idealBinCounts,
                 backgroundColor: 'rgba(255, 99, 132, 0.4)',
                 borderColor: 'rgba(255, 99, 132, 1)',
@@ -62,7 +94,7 @@
             },
             {
                 type: 'bar',
-                label: 'Your Tweets',
+                label: 'Your Tweets (' + count + ')',
                 data: dataBinCounts,
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -116,6 +148,100 @@
     // show by default, then hide because it's kinda big
     toggleTweetTable();
 
+    /* MATH STUFF */
+    var grade = 5,
+        alpha = 0.05;
+
+    function calculateT(x, mu, s, n) {
+        return (x - mu) / (s / Math.sqrt(n));
+    }
+
+    // taken from jstat library
+    function gammaln(x) {
+        var j = 0;
+        var cof = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+        -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+        var ser = 1.000000000190015;
+        var xx, y, tmp;
+        tmp = (y = xx = x) + 5.5;
+        tmp -= (xx + 0.5) * Math.log(tmp);
+        for (; j < 6; j++) {
+            ser += cof[j] / ++y;
+        }
+        return Math.log(2.5066282746310005 * ser / xx) - tmp;
+    }
+
+    function betacf(x, a, b) {
+        var fpmin = 1e-30;
+        var m = 1;
+        var qab = a + b;
+        var qap = a + 1;
+        var qam = a - 1;
+        var c = 1;
+        var d = 1 - qab * x / qap;
+        var m2, aa, del, h;
+
+        if (Math.abs(d) < fpmin) {
+            d = fpmin;
+        }
+        d = 1 / d;
+        h = d;
+
+        for (; m <= 100; m++) {
+            m2 = 2 * m;
+            aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+            d = 1 + aa * d;
+            if (Math.abs(d) < fpmin) {
+                d = fpmin;
+            }
+            c = 1 + aa / c;
+            if (Math.abs(c) < fpmin) {
+                c = fpmin;
+            }
+            d = 1 / d;
+            h *= d * c;
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+            d = 1 + aa * d;
+            if (Math.abs(d) < fpmin) {
+                d = fpmin;
+            }
+            c = 1 + aa / c;
+            if (Math.abs(c) < fpmin) {
+                c = fpmin;
+            }
+            d = 1 / d;
+            del = d * c;
+            h *= del;
+            if (Math.abs(del - 1.0) < 3e-7) {
+                break;
+            }
+        }
+        return h;
+    }
+
+    function ibeta(x, a, b) {
+        var bt = (x === 0 || x === 1) ?  0 : Math.exp(gammaln(a + b) - gammaln(a) - gammaln(b) + a * Math.log(x) + b * Math.log(1 - x));
+        if (x < 0 || x > 1) {
+            return false;
+        }
+        if (x < (a + 1) / (a + b + 2)) {
+            return bt * jStat.betacf(x, a, b) / a;
+        }
+        return 1 - bt * jStat.betacf(1 - x, b, a) / b;
+    }
+
+    function cdf(x, dof) {
+        var dof2 = dof / 2;
+        var x2dof = Math.sqrt(x * x + dof);
+        return ibeta((x + x2dof) / (2 * x2dof), dof2, dof2);
+    }
+
+    function calculateP(t, n) {
+        t = Math.abs(t);
+        return cdf(-t, n - 1);
+    }
+
+    document.getElementById('fifth-grade-boolean').innerText = (1 - calculateP(calculateT(grade, sampMean, sampStdDev, count), count) < alpha) ? 'Yes' : 'No';
 </script>
 {{/inline}}
 {{/base}}
