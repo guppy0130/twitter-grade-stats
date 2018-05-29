@@ -1,4 +1,8 @@
 /* jslint node:true */
+// Global vars
+const production = process.env.NODE_ENV === 'production';
+const port = process.env.PORT || 3000;
+
 // Dependencies
 const twitter = require('twit');
 const express = require('express');
@@ -6,8 +10,14 @@ const textStatistics = require('text-statistics');
 const hbs = require('hbs');
 const he = require('he');
 const ss = require('simple-statistics');
-const reload = require('reload');
-const port = process.env.PORT || 3000;
+const compression = require('compression');
+const minify = require('express-minify-html');
+
+let app = express();
+if (!production) {
+    const reload = require('reload');
+    reload(app);
+}
 
 const client = new twitter({
 	consumer_key: process.env.TwitterConsumerKey,
@@ -130,22 +140,38 @@ const getTweetMiddleware = async (req, res, next) => {
     });
 };
 
-user = express.Router();
-user.use('/user/', getTweetMiddleware, async (req, res) => {
-	res.render('user', {
-		title: req.query.username + "'s Tweets",
-		tweets: req.tweets,
-        stats: req.stats
-	});
-});
+app.use(minify({
+    override: true,
+    htmlMinifier: {
+        removeComments: true,
+        collapseWhitespace: true,
+        collapseBooleanAttributes: true,
+        removeEmptyAttributes: true,
+        minifyJS: true,
+        minifyCSS: true,
+        quoteCharacter: '"',
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        useShortDoctype: true,
+        sortAttributes: true,
+        sortClassName: true,
+        removeOptionalTags: false
+    }
+}));
+app.use(compression());
 
-let expressApp = express();
-
-reload(expressApp);
-
-expressApp
-    .set('view engine', 'hbs')
+app.set('view engine', 'hbs')
     .set('views', './views')
-    .get('/', (req, res) => res.render('index', index))
-	.get('/user/', user)
-    .listen(port, () => console.log(`Listening on ${ port }`));
+    .get('/', (req, res) => {
+        res.render('index', index);
+    })
+	.get('/user/', getTweetMiddleware, async (req, res) => {
+        res.render('user', {
+            title: req.query.username + "'s Tweets",
+            tweets: req.tweets,
+            stats: req.stats
+        });
+    })
+    .listen(port, () => {
+        console.log(`Listening on ${ port }`);
+    });
