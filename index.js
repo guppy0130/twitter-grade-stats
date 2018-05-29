@@ -12,6 +12,7 @@ const he = require('he');
 const ss = require('simple-statistics');
 const compression = require('compression');
 const minify = require('express-minify-html');
+const enforce = require('express-sslify');
 
 let app = express();
 if (!production) {
@@ -140,6 +141,7 @@ const getTweetMiddleware = async (req, res, next) => {
     });
 };
 
+app.use(enforce.HTTPS({ trustProtoHeader: true }));
 app.use(minify({
     override: true,
     htmlMinifier: {
