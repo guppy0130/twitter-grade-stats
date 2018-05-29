@@ -60,7 +60,7 @@ const getTweetMiddleware = async (req, res, next) => {
             Promise.reject().catch(() => {
                 res.render('404', {
                     name: req.query.username,
-                    reason: "was suspended"
+                    reason: "was suspended/doesn't exist"
                 });
             });
         } else if (response.resp.statusCode === 200) {
