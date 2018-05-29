@@ -6,6 +6,7 @@ const textStatistics = require('text-statistics');
 const hbs = require('hbs');
 const he = require('he');
 const ss = require('simple-statistics');
+const reload = require('reload');
 const port = process.env.PORT || 3000;
 
 const client = new twitter({
@@ -138,7 +139,11 @@ user.use('/user/', getTweetMiddleware, async (req, res) => {
 	});
 });
 
-express()
+let expressApp = express();
+
+reload(expressApp);
+
+expressApp
     .set('view engine', 'hbs')
     .set('views', './views')
     .get('/', (req, res) => res.render('index', index))
