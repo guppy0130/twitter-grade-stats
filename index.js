@@ -1,4 +1,3 @@
-/* jslint node:true */
 // Global vars
 const production = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
@@ -21,44 +20,44 @@ if (!production) {
 }
 
 const client = new twitter({
-	consumer_key: process.env.TwitterConsumerKey,
-	consumer_secret: process.env.TwitterConsumerSecret,
-	app_only_auth: true
+    consumer_key: process.env.TwitterConsumerKey,
+    consumer_secret: process.env.TwitterConsumerSecret,
+    app_only_auth: true
 });
 
 const params = {
-	count: 200,
-	trim_user: true,
-	exclude_replies: false,
-	include_rts: false,
-	tweet_mode: 'extended'
+    count: 200,
+    trim_user: true,
+    exclude_replies: false,
+    include_rts: false,
+    tweet_mode: 'extended'
 };
 
 function cleanText(input) {
     const regexURL = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gim,
-          regexHash = /\S*#(?:\[[^\]]+\]|\S+)/gim,
-          regexUsername = /(^|[^@\w])@(\w{1,15})\b\ /gim,
-          regexNewLine = /\n/gim;
-    var result = he.decode(input.replace(regexURL, '').replace(regexHash, '').replace(regexUsername, '').replace(regexNewLine, '. ').trim() + '.');
-	return (result == '.' ? ' ' : result);
+        regexHash = /\S*#(?:\[[^\]]+\]|\S+)/gim,
+        regexUsername = /(^|[^@\w])@(\w{1,15})\b\ /gim,
+        regexNewLine = /\n/gim;
+    let result = he.decode(input.replace(regexURL, '').replace(regexHash, '').replace(regexUsername, '').replace(regexNewLine, '. ').trim() + '.');
+    return (result == '.' ? ' ' : result);
 }
 
 let index = {
-	title: "Twitter Grade Stats"
+    title: 'Twitter Grade Stats'
 };
 
 hbs.registerPartials(__dirname + '/views/partials');
 
 const getTweetMiddleware = async (req, res, next) => {
-	params['screen_name'] = req.query.username;
+    params['screen_name'] = req.query.username;
     let gradeArray = [];
-	client.get('statuses/user_timeline', params).then((response) => {
+    client.get('statuses/user_timeline', params).then((response) => {
         console.log(req.query.username + ' resulted in a ' + response.resp.statusCode + ' response. Requests remaining: ' + response.resp.headers['x-rate-limit-remaining']);
         if (response.resp.statusCode === 404) {
             Promise.reject().catch(() => {
                 res.render('404', {
                     name: req.query.username,
-                    reason: "doesn't exist"
+                    reason: 'doesn\'t exist'
                 });
             });
         } else if (response.resp.statusCode === 429) {
@@ -71,7 +70,7 @@ const getTweetMiddleware = async (req, res, next) => {
             Promise.reject().catch(() => {
                 res.render('404', {
                     name: req.query.username,
-                    reason: "was suspended/doesn't exist"
+                    reason: 'was suspended/doesn\'t exist'
                 });
             });
         } else if (response.resp.statusCode === 200) {
@@ -89,7 +88,9 @@ const getTweetMiddleware = async (req, res, next) => {
     }).then((tweets) => {
         if (tweets !== undefined) {
             req.tweets = tweets;
-            gradeArray.sort((a, b) => {return a - b;});
+            gradeArray.sort((a, b) => {
+                return a - b;
+            });
             let min = Math.floor(ss.minSorted(gradeArray)),
                 max = Math.ceil(ss.maxSorted(gradeArray)),
                 bins = {},
@@ -99,7 +100,7 @@ const getTweetMiddleware = async (req, res, next) => {
 
             const getGaussianHeight = (z, mu, sigma) => {
                 // gets the height at z given my and sigma
-                var gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+                let gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
                 z = (z - mu) / sigma;
                 return gaussianConstant * Math.exp(-0.5 * z * z) / sigma;
             };
@@ -136,12 +137,17 @@ const getTweetMiddleware = async (req, res, next) => {
         console.log('try not to end up here with error ' + err);
         res.render('404', {
             name: req.query.username,
-            reason: "caused something to break"
+            reason: 'caused something to break'
         });
     });
 };
 
-app.use(enforce.HTTPS({ trustProtoHeader: true }));
+if (production) {
+    app.use(enforce.HTTPS({
+        trustProtoHeader: true
+    }));
+}
+
 app.use(minify({
     override: true,
     htmlMinifier: {
@@ -167,13 +173,16 @@ app.set('view engine', 'hbs')
     .get('/', (req, res) => {
         res.render('index', index);
     })
-	.get('/user/', getTweetMiddleware, async (req, res) => {
+    .get('/user/', getTweetMiddleware, async (req, res) => {
         res.render('user', {
-            title: req.query.username + "'s Tweets",
+            title: req.query.username + '\'s Tweets',
             tweets: req.tweets,
             stats: req.stats
         });
     })
+    .get('/particles.json', (req, res) => {
+        res.sendFile(__dirname + '/views/particles.json');
+    })
     .listen(port, () => {
-        console.log(`Listening on ${ port }`);
+        console.log(`Listening on ${port}`);
     });

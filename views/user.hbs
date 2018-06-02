@@ -1,22 +1,23 @@
-{{#> base}}
-
-{{#* inline "styles"}}
+{{#> base}} {{#* inline "styles"}}
 <style>
-    td, th {
+    td,
+    th {
         border: 1px solid black;
         padding: 0.2em;
     }
+
     table {
         margin-top: 1em;
         border-collapse: collapse;
     }
+
     .table-grade-entry {
         text-align: right;
     }
-</style>
-{{/inline}}
 
-{{#* inline "content"}}
+</style>
+{{/inline}} {{#* inline "content"}}
+<h1>{{title}}</h1>
 
 <div id="user-graph-container">
     <canvas id="user-graph"></canvas>
@@ -40,12 +41,12 @@
         <th>Tweet</th>
         <th>Grade</th>
     </tr>
-	{{#each tweets}}
-	<tr>
-		<td>{{text}}</td>
-		<td class="table-grade-entry">{{grade}}</td>
-	</tr>
-	{{/each}}
+    {{#each tweets}}
+    <tr>
+        <td>{{text}}</td>
+        <td class="table-grade-entry">{{grade}}</td>
+    </tr>
+    {{/each}}
 </table>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
@@ -83,8 +84,7 @@
 
     var userChartData = {
         labels: dataBins,
-        datasets: [
-            {
+        datasets: [{
                 type: 'line',
                 label: 'Normal Dist Based on Sample Stats',
                 data: idealBinCounts,
@@ -159,8 +159,7 @@
     // taken from jstat library
     function gammaln(x) {
         var j = 0;
-        var cof = [76.18009172947146, -86.50532032941677, 24.01409824083091,
-        -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+        var cof = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
         var ser = 1.000000000190015;
         var xx, y, tmp;
         tmp = (y = xx = x) + 5.5;
@@ -220,7 +219,7 @@
     }
 
     function ibeta(x, a, b) {
-        var bt = (x === 0 || x === 1) ?  0 : Math.exp(gammaln(a + b) - gammaln(a) - gammaln(b) + a * Math.log(x) + b * Math.log(1 - x));
+        var bt = (x === 0 || x === 1) ? 0 : Math.exp(gammaln(a + b) - gammaln(a) - gammaln(b) + a * Math.log(x) + b * Math.log(1 - x));
         if (x < 0 || x > 1) {
             return false;
         }
@@ -242,6 +241,6 @@
     }
 
     document.getElementById('fifth-grade-boolean').innerText = (1 - calculateP(calculateT(grade, sampMean, sampStdDev, count), count) < alpha) ? 'Yes' : 'No';
+
 </script>
-{{/inline}}
-{{/base}}
+{{/inline}} {{/base}}
