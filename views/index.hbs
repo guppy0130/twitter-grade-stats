@@ -9,19 +9,25 @@
         z-index: -1;
         height: 100vh;
         background-color: #415A77;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     #particle-protect {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        left: 25%;
-        top: 25%;
         padding: 0 1em 1em 1em;
         border-radius: 3px;
         color: white;
+        text-align: center;
+        z-index: 1;
+    }
+
+    .particles-js-canvas-el {
+        position: absolute;
+        z-index: 0;
     }
 
     h1 {
@@ -52,7 +58,7 @@
     input[type="submit"] {
         width: 100%;
         padding: 0.6em;
-        border: 1px solid black;
+        border: 0px;
         background-color: white;
         text-transform: uppercase;
         transition: 0.2s;
@@ -74,7 +80,7 @@
 
         <form action='/user/' method="get">
             <input id="username" name="username" placeholder="Twitter handle">
-            <input type="submit">
+            <input type="submit" value="Get Grades">
         </form>
     </div>
 </div>

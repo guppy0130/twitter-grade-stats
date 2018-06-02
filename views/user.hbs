@@ -1,5 +1,9 @@
 {{#> base}} {{#* inline "styles"}}
 <style>
+    body {
+        width: 90vw;
+        margin: 0 auto;
+    }
     td,
     th {
         border: 1px solid black;
@@ -15,6 +19,15 @@
         text-align: right;
     }
 
+    #user-graph-container {
+        min-height: 300px;
+    }
+
+    @media screen and (min-width: 60em) {
+        body {
+            width: 50vw;
+        }
+    }
 </style>
 {{/inline}} {{#* inline "content"}}
 <h1>{{title}}</h1>
@@ -94,7 +107,7 @@
             },
             {
                 type: 'bar',
-                label: 'Your Tweets (' + count + ')',
+                label: 'Raw Tweets (' + count + ')',
                 data: dataBinCounts,
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
@@ -106,7 +119,7 @@
     var userChartOptions = {
         title: {
             display: true,
-            text: "Your Tweets' Grade Levels"
+            text: "Raw Tweets' Grade Levels"
         },
         tooltips: {
             mode: 'index'
@@ -124,7 +137,8 @@
                     labelString: '# of Tweets'
                 }
             }]
-        }
+        },
+        maintainAspectRatio: false
     }
 
     var ctx = document.getElementById('user-graph').getContext('2d');
