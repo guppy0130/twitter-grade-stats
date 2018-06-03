@@ -86,7 +86,7 @@ const getTweetMiddleware = async (req, res, next) => {
             });
         }
     }).then((tweets) => {
-        if (tweets !== undefined) {
+        if (tweets !== undefined && tweets.length >= 2) {
             req.tweets = tweets;
             gradeArray.sort((a, b) => {
                 return a - b;
@@ -130,11 +130,16 @@ const getTweetMiddleware = async (req, res, next) => {
             };
 
             next();
-        } else {
-            Promise.reject().catch(() => {});
+        } else if (tweets.length < 2) {
+            Promise.reject().catch(() => {
+                res.render('404', {
+                    name: req.query.username,
+                    reason: `did not tweet enough to have useful statistics (minimum 2, received ${tweets.length})`
+                });
+            });
         }
     }).catch(err => {
-        console.log('try not to end up here with error ' + err);
+        console.log('[RUNTIME ERROR] ' + err);
         res.render('404', {
             name: req.query.username,
             reason: 'caused something to break'
