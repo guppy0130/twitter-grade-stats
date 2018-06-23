@@ -25,7 +25,7 @@
     "reload": "^2.3.0"
   },
   "scripts": {
-    "test": "run-p -r start test",
+    "test": "run-p -r start cypress",
     "cypress": "cypress run",
     "cypress-active": "cypress open",
     "start": "node index.js",
