@@ -88,3 +88,14 @@ describe('it loads stats', () => {
             .and('contain', 'Grade');
     });
 });
+
+describe('it 404s on undefined pages', () => {
+    it('404s on defined pages', () => {
+        cy.visit('/undefined', {
+            failOnStatusCode: false
+        });
+
+        cy.url()
+            .should('contain', 'undefined');
+    });
+});

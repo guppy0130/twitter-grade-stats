@@ -26,6 +26,7 @@
   },
   "scripts": {
     "test": "run-p -r start cypress",
+    "test-active": "run-p -r dev cypress-active",
     "cypress": "cypress run",
     "cypress-active": "cypress open",
     "start": "node index.js",

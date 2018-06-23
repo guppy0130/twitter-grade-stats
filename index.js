@@ -188,6 +188,11 @@ app.set('view engine', 'hbs')
     .get('/particles.json', (req, res) => {
         res.sendFile(__dirname + '/views/particles.json');
     })
+    .get('*', (req, res) => {
+        res.status(400).render('404', {
+            reason: 'that\'s not a URL we have'
+        });
+    })
     .listen(port, () => {
         console.log(`Listening on ${port}`);
     });
