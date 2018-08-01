@@ -99,7 +99,7 @@ const getTweetMiddleware = async (req, res, next) => {
                 sampStdDev = ss.sampleStandardDeviation(gradeArray);
 
             const getGaussianHeight = (z, mu, sigma) => {
-                // gets the height at z given my and sigma
+                // gets the height at z given mu and sigma
                 let gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
                 z = (z - mu) / sigma;
                 return gaussianConstant * Math.exp(-0.5 * z * z) / sigma;
