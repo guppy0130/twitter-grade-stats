@@ -13,25 +13,39 @@ const compression = require('compression');
 const minify = require('express-minify-html');
 const enforce = require('express-sslify');
 
+// set up the express server
 let app = express();
+let reloader;
 
+// some rendering defaults
 let index = {
     title: 'Twitter Grade Stats',
     deploy: true
 };
 
+// we'll also include reload if we're not in prod so we can see changes sooner
 if (!production) {
     const reload = require('reload');
+    const fs = require('fs');
     index.deploy = false;
-    reload(app);
+    reloader = reload(app);
+    fs.watch('./views', () => {
+        reloader.reload();
+    });
 }
 
+// create a new twitter client
 const client = new twitter({
     consumer_key: process.env.TwitterConsumerKey,
     consumer_secret: process.env.TwitterConsumerSecret,
     app_only_auth: true
 });
 
+/**
+ * we want at most 200 tweets (max), and full tweet (140+)
+ * we don't want user objects or retweets
+ * we do want replies to other tweets though
+ */
 const params = {
     count: 200,
     trim_user: true,
@@ -40,6 +54,10 @@ const params = {
     tweet_mode: 'extended'
 };
 
+/**
+ * removes URLs, hashtags, usernames (@'s), and newlines, and appends a period to the cleaned phrase
+ * input {string} the string to clean
+ */
 function cleanText(input) {
     const regexURL = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gim,
         regexHash = /\S*#(?:\[[^\]]+\]|\S+)/gim,
@@ -49,13 +67,23 @@ function cleanText(input) {
     return (result == '.' ? ' ' : result);
 }
 
+// here are the partials we'll need
 hbs.registerPartials(__dirname + '/views/partials');
 
+// and some helper functions
+hbs.registerHelper('round', (toRound) => {
+    return Math.round(toRound);
+});
+
+// the bulk of the calculating.
 const getTweetMiddleware = async (req, res, next) => {
     params['screen_name'] = req.query.username;
     let gradeArray = [];
     client.get('statuses/user_timeline', params).then((response) => {
-        console.log(req.query.username + ' resulted in a ' + response.resp.statusCode + ' response. Requests remaining: ' + response.resp.headers['x-rate-limit-remaining']);
+        // log the requested user, the response code, and how many remaining requests in the timeframe
+        console.log(`${req.query.username} resulted in a ${response.resp.statusCode} response. Requests remaining: ${response.resp.headers['x-rate-limit-remaining']}`);
+
+        // fail fast: reject the promise, then catch it and render the reason why
         if (response.resp.statusCode === 404) {
             Promise.reject().catch(() => {
                 res.render('404', {
@@ -77,19 +105,20 @@ const getTweetMiddleware = async (req, res, next) => {
                 });
             });
         } else if (response.resp.statusCode === 200) {
+            // assuming we have the data now since we got back 200
             return response.data.map(element => {
-                let cleanedText = cleanText(element.full_text);
-                let grade = textStatistics(cleanedText).fleschKincaidGradeLevel();
-                gradeArray.push(grade);
+                let cleanedText = cleanText(element.full_text); // clean the tweet text
+                let grade = textStatistics(cleanedText).fleschKincaidGradeLevel(); // calculate the grade
+                gradeArray.push(grade); // add the grade to the list
                 return {
                     id: element.id_str,
                     text: cleanedText,
                     grade: grade
-                };
+                }; // return a simplified tweet object
             });
         }
     }).then((tweets) => {
-        if (tweets !== undefined && tweets.length >= 2) {
+        if (tweets !== undefined && tweets.length >= 2) { // we must have > 2 tweets to do math
             req.tweets = tweets;
             gradeArray.sort((a, b) => {
                 return a - b;
@@ -101,8 +130,13 @@ const getTweetMiddleware = async (req, res, next) => {
                 sampMean = ss.mean(gradeArray),
                 sampStdDev = ss.sampleStandardDeviation(gradeArray);
 
+            /**
+             * gets the height at z given mu and sigma
+             * z {Number} the number of standard deviations from the mean
+             * mu {Number} the sample mean
+             * sigma {Number} the sample standard deviation
+             */
             const getGaussianHeight = (z, mu, sigma) => {
-                // gets the height at z given mu and sigma
                 let gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
                 z = (z - mu) / sigma;
                 return gaussianConstant * Math.exp(-0.5 * z * z) / sigma;
@@ -115,12 +149,13 @@ const getTweetMiddleware = async (req, res, next) => {
                 ideal[i] = getGaussianHeight(i, sampMean, sampStdDev) * tweets.length;
             }
 
-            // count how many belong in each bin
+            // count how many grades belong in each bin
             bins = gradeArray.reduce((all, value) => {
                 all[Math.floor(value)]++;
                 return all;
             }, bins);
 
+            // attach a stats object to the request for use later
             req.stats = {
                 count: tweets.length,
                 min: min,
@@ -134,6 +169,7 @@ const getTweetMiddleware = async (req, res, next) => {
 
             next();
         } else if (tweets.length < 2) {
+            // we didn't receive enough tweets
             Promise.reject().catch(() => {
                 res.render('404', {
                     name: req.query.username,
@@ -150,12 +186,14 @@ const getTweetMiddleware = async (req, res, next) => {
     });
 };
 
+// if in production, force https requests
 if (production) {
     app.use(enforce.HTTPS({
         trustProtoHeader: true
     }));
 }
 
+// minify and compress responses
 app.use(minify({
     override: true,
     htmlMinifier: {
@@ -176,6 +214,7 @@ app.use(minify({
 }));
 app.use(compression());
 
+// setup app routes
 app.set('view engine', 'hbs')
     .set('views', './views')
     .get('/', (req, res) => {
@@ -183,13 +222,14 @@ app.set('view engine', 'hbs')
     })
     .get('/user/', getTweetMiddleware, async (req, res) => {
         res.render('user', {
-            title: req.query.username + '\'s Tweets',
+            title: `${req.query.username}'s Tweets`,
             tweets: req.tweets,
-            stats: req.stats
+            stats: req.stats,
+            deploy: index.deploy
         });
     })
     .get('/particles.json', (req, res) => {
-        res.sendFile(__dirname + '/views/particles.json');
+        res.sendFile(`${__dirname}/views/particles.json`);
     })
     .get('*', (req, res) => {
         res.status(400).render('404', {

@@ -22,9 +22,9 @@
 
 <body>
     {{#> content}} {{/content}}
-    {{#if deploy}}
+    {{#unless deploy}}
     <script src="/reload/reload.js"></script>
-    {{/if}}
+    {{/unless}}
 </body>
 
 </html>
