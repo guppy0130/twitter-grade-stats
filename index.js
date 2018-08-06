@@ -29,7 +29,8 @@ if (!production) {
     const fs = require('fs');
     index.deploy = false;
     reloader = reload(app);
-    fs.watch('./views', () => {
+    fs.watch('./views', { recursive: true }, () => {
+        console.log('reloading...');
         reloader.reload();
     });
 }
@@ -230,6 +231,12 @@ app.set('view engine', 'hbs')
     })
     .get('/particles.json', (req, res) => {
         res.sendFile(`${__dirname}/views/particles.json`);
+    })
+    .get('/about', (req, res) => {
+        res.render('about', {
+            title: 'About this project',
+            deploy: index.deploy
+        });
     })
     .get('*', (req, res) => {
         res.status(400).render('404', {

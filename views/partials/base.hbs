@@ -7,6 +7,7 @@
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Sunflower:500,700" rel="stylesheet">
+    {{#if deploy}} {{> analytics}} {{/if}}
     <style>
         body {
             margin: 0;
@@ -15,9 +16,23 @@
             font-family: 'Sunflower', sans-serif;
         }
 
+        a {
+            color: rgba(54, 162, 235, 1);
+        }
+
+        a:visited {
+            color: rgba(54, 162, 235, 1);
+        }
+
+        h1 {
+            font-size: 1.5em;
+        }
+
+        h2 {
+            font-size: 1.3em;
+        }
     </style>
     {{#> styles}} {{/styles}}
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
