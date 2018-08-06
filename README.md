@@ -10,6 +10,12 @@ Thanks to the [jstat/jstat library](https://github.com/jstat/jstat) for Normal d
 
 ## Deployment
 
-`npm i` to obtain dependencies. Create an application with Twitter and save API keys to environment variables `TwitterConsumerKey` and `TwitterConsumerSecret`. Use `npm run-script dev` and open `localhost:port` in the browser to ensure the key and secret works.
+1. `npm i` to obtain dependencies.
+2. Create an application with Twitter and save API keys to environment variables `TwitterConsumerKey` and `TwitterConsumerSecret`.
+3. Modify or remove `partials/analytics.hbs` with your GAnalytics or from `partials/base` respectively.
+4. `npm run dev` and open `localhost:port` in the browser to ensure the key and secret works.
+
+Note that:
+* Environment variables are not set by the application. So, if they're not set in your environment, `npm start` and `npm test` will crash.
 
 A functional version of the application exists [here](https://twitter-grade-stats.herokuapp.com).
