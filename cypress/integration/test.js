@@ -50,7 +50,7 @@ describe('it loads stats', () => {
 
     it('has the 5th grader comparison', () => {
         cy.get('#fifth-grade-boolean')
-            .contains(/^(yes|no)$/gim);
+            .contains(/^(yes|no)/gim);
     });
 
     it('has a working tweet table', () => {
