@@ -22,7 +22,9 @@
 
 <body>
     {{#> content}} {{/content}}
-<!--    <script src="/reload/reload.js"></script>-->
+    {{#if deploy}}
+    <script src="/reload/reload.js"></script>
+    {{/if}}
 </body>
 
 </html>

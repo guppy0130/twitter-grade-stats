@@ -14,8 +14,15 @@ const minify = require('express-minify-html');
 const enforce = require('express-sslify');
 
 let app = express();
+
+let index = {
+    title: 'Twitter Grade Stats',
+    deploy: true
+};
+
 if (!production) {
     const reload = require('reload');
+    index.deploy = false;
     reload(app);
 }
 
@@ -41,10 +48,6 @@ function cleanText(input) {
     let result = he.decode(input.replace(regexURL, '').replace(regexHash, '').replace(regexUsername, '').replace(regexNewLine, '. ').trim() + '.');
     return (result == '.' ? ' ' : result);
 }
-
-let index = {
-    title: 'Twitter Grade Stats'
-};
 
 hbs.registerPartials(__dirname + '/views/partials');
 
