@@ -4,10 +4,10 @@
         width: 90vw;
         margin: 0 auto;
     }
-    td,
-    th {
-        border: 1px solid black;
-        padding: 0.2em;
+
+    td, th {
+        border-bottom: 1px solid gray;
+        padding: 12px 15px;
     }
 
     table {
@@ -27,6 +27,24 @@
         body {
             width: 50vw;
         }
+    }
+
+    button {
+        background-color: white;
+        border: 2px solid rgba(54, 162, 235, 1);
+        border-radius: 4px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: 0.2s;
+        padding: 0.6em;
+        width: 100%;
+        font-size: 1em;
+        font-family: 'Sunflower', sans-serif;
+    }
+
+    button:hover {
+        background-color: rgba(54, 162, 235, 1);
+        color: white;
     }
 </style>
 {{/inline}} {{#* inline "content"}}
@@ -64,7 +82,7 @@
         <li>Statistics methods are implemented with <a href="https://github.com/jstat/jstat">jstat, the JavaScript Statistical Library</a>.</li>
     </ul>
 
-    <button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets</button>
+    <button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets Used</button>
     <table id="tweet-table">
         <tr>
             <th>Tweet</th>
@@ -77,6 +95,8 @@
         </tr>
         {{/each}}
     </table>
+
+    <p><a href="/about">Learn more about this project.</a></p>
 </article>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
@@ -170,10 +190,10 @@
         var tweetTable = document.getElementById('tweet-table').style.display;
         if (tweetTable == '' || tweetTable == 'table') {
             document.getElementById('tweet-table').style.display = 'none';
-            document.getElementById('tweet-table-toggle').innerText = 'View Tweets';
+            document.getElementById('tweet-table-toggle').innerText = 'View Tweets Used';
         } else {
             document.getElementById('tweet-table').style.display = 'table';
-            document.getElementById('tweet-table-toggle').innerText = 'Hide Tweets';
+            document.getElementById('tweet-table-toggle').innerText = 'Hide Tweets Used';
         }
     }
     // show by default, then hide because it's kinda big
