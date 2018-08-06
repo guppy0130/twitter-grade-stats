@@ -30,37 +30,54 @@
     }
 </style>
 {{/inline}} {{#* inline "content"}}
-<h1>{{title}}</h1>
+<article>
+    <h1>{{title}}</h1>
 
-<div id="user-graph-container">
-    <canvas id="user-graph"></canvas>
-</div>
+    <div id="user-graph-container">
+        <canvas id="user-graph"></canvas>
+    </div>
 
-<h2>Some Quick Stats</h2>
-<ul>
-    <li>Count: {{{stats.count}}}</li>
-    <li>Min: {{{stats.min}}}</li>
-    <li>Max: {{{stats.max}}}</li>
-    <li>Mean: {{{stats.sampMean}}}</li>
-    <li>Standard Deviation: {{{stats.sampStdDev}}}</li>
-</ul>
+    <h2>Some Quick Stats</h2>
+    <p>The sample included {{{stats.count}}} tweets. These grade levels varied between {{{stats.min}}} and {{{stats.max}}}. These numbers may be negative as a result of several factors:</p>
+    <ul>
+        <li>The formula itself</li>
+        <li>The cleaning process applied</li>
+    </ul>
+    <p>Nevertheless, these negative levels were taken into account for the following calculations.
 
-<h2>Do {{{title}}} Have Bigger Words Compared to a 5th Grader's?</h2>
-<p id="fifth-grade-boolean"></p>
+    The average grade level was around {{{round stats.sampMean}}}, with a measured sample standard deviation of about {{{round stats.sampStdDev}}}.
+    </p>
 
-<button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets</button>
-<table id="tweet-table">
-    <tr>
-        <th>Tweet</th>
-        <th>Grade</th>
-    </tr>
-    {{#each tweets}}
-    <tr>
-        <td>{{text}}</td>
-        <td class="table-grade-entry">{{grade}}</td>
-    </tr>
-    {{/each}}
-</table>
+    <h2>Testing</h2>
+    <p>So, are these tweets written "better" than a fifth grader's?</p>
+    <p id="fifth-grade-boolean"></p>
+
+    <p>The population consists of {{{title}}}. The parameter of interest is the mean Flesch-Kincaid grade level of these tweets.</p>
+    <p>The null hypothesis claims that the mean grade level is 5. The alternative hypothesis claims that the mean grade level is greater than 5.</p>
+    <p>The confidence level is 95%; the alpha value, 0.05. If the value obtained at the end yields a value less than 0.05, the result is statistically significant; that is, the null hypothesis is rejected because the data is too extreme. If it is greater than 0.05, the null hypothesis cannot be rejected, so it <em>could</em> be that the null hypothesis is true.</p>
+
+    <h2>Important Notes</h2>
+    <ul>
+        <li>The cleaning process removes user mentions (e.g., @yanglangthang), URLs, hashtags, and newlines. These elements do not represent vocabulary and were thus irrelevant.</li>
+        <li>The value used was the Flesch-Kincaid Grade Level. You can find more information on the test, as well as its issues and uses, on <a href="https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch.E2.80.93Kincaid_grade_level">Wikipedia</a>.</li>
+        <li>Implementation of the Flesch-Kincaid calculator was provided by <a href="https://www.npmjs.com/package/text-statistics">the npm package text-statistics</a>.</li>
+        <li>Statistics methods are implemented with <a href="https://github.com/jstat/jstat">jstat, the JavaScript Statistical Library</a>.</li>
+    </ul>
+
+    <button id="tweet-table-toggle" onclick="toggleTweetTable()">View Tweets</button>
+    <table id="tweet-table">
+        <tr>
+            <th>Tweet</th>
+            <th>Grade</th>
+        </tr>
+        {{#each tweets}}
+        <tr>
+            <td>{{text}}</td>
+            <td class="table-grade-entry">{{grade}}</td>
+        </tr>
+        {{/each}}
+    </table>
+</article>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" integrity="sha256-CfcERD4Ov4+lKbWbYqXD6aFM9M51gN4GUEtDhkWABMo=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.7.1/jstat.min.js" integrity="sha256-Rtwg0oi/KB80JyxnJGWz/zWwjIBgDchFFBnenkosAfA=" crossorigin="anonymous"></script>
@@ -162,10 +179,11 @@
     // show by default, then hide because it's kinda big
     toggleTweetTable();
 
-    /* MATH STUFF */
+    // we compare against grade with 100-alpha confidence
     var grade = 5,
         alpha = 0.05;
 
+    /* MATH HELPER FUNCTIONS */
     function calculateT(x, mu, s, n) {
         return (x - mu) / (s / Math.sqrt(n));
     }
@@ -254,7 +272,7 @@
         return cdf(-t, n - 1);
     }
 
-    document.getElementById('fifth-grade-boolean').innerText = (1 - calculateP(calculateT(grade, sampMean, sampStdDev, count), count) < alpha) ? 'Yes' : 'No';
+    document.getElementById('fifth-grade-boolean').innerText = (1 - calculateP(calculateT(grade, sampMean, sampStdDev, count), count) < alpha) ? 'YES.' : 'NO.';
 
 </script>
 {{/inline}} {{/base}}

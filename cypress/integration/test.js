@@ -40,20 +40,6 @@ describe('it loads stats', () => {
             .should('be.visible');
 
         cy.contains('Some Quick Stats');
-
-        cy.get('ul')
-            .should('be.visible')
-            .and('have.descendants', 'li')
-            .and('have.css', 'font-family', font);
-
-        cy.get('ul li')
-            .should('have.length', 5)
-            .and('contain', 'Count')
-            .and('contain', 'Min')
-            .and('contain', 'Max')
-            .and('contain', 'Mean')
-            .and('contain', 'Standard Deviation')
-            .and('have.css', 'font-family', font);
     });
 
     it('has a dynamic title', () => {
@@ -63,9 +49,6 @@ describe('it loads stats', () => {
     });
 
     it('has the 5th grader comparison', () => {
-        cy.get('body > :nth-child(5)')
-            .should('have.text', `Do ${user}'s Tweets Have Bigger Words Compared to a 5th Grader's?`);
-
         cy.get('#fifth-grade-boolean')
             .contains(/^(yes|no)$/gim);
     });
