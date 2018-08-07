@@ -117,42 +117,59 @@
      * sortedCounts, an array of counts in sorted order
      */
 
-    function sortAndFlatten(object) {
-        var sortedCounts = [],
-            sortedBins = [];
+    function sortAndFlatten(object, ratio) {
+        var sortedBins = [],
+            sortedCounts = [];
         sortedBins = Object.keys(object).sort(function(a, b) {
             return a - b;
         });
         sortedBins.forEach(function(item) {
             sortedCounts.push(object[item]);
         });
-        return [sortedBins, sortedCounts];
-    }
 
-    var [dataBins, dataBinCounts] = sortAndFlatten(data);
-    var [idealBins, idealBinCounts] = sortAndFlatten(ideal);
-
-    var userChartData = {
-        labels: dataBins,
-        datasets: [
-            {
-                type: 'line',
-                label: 'Normal Dist Based on Sample Stats',
-                data: idealBinCounts,
-                backgroundColor: 'rgba(255, 99, 132, 0.4)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            },
-            {
-                type: 'bar',
-                label: 'Raw Tweets (' + count + ')',
-                data: dataBinCounts,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+        var bin = [],
+            count = [];
+        bin = sortedBins.filter((val, index) => {
+            const keep = index % ratio == 0;
+            if (keep) {
+                count.push((sortedCounts[index] || 0) + (sortedCounts[index + 1] || 0) + (sortedCounts[index + 2] || 0));
             }
-        ]
+            return keep;
+        });
+        console.log(bin, count);
+        return [bin, count];
     }
+
+    function generateData() {
+        var ratio = Math.ceil(Math.max(1200 / window.innerWidth, 1));
+        console.log(`ratio: ${ratio}`);
+        var [dataBins, dataBinCounts] = sortAndFlatten(data, ratio);
+        var [idealBins, idealBinCounts] = sortAndFlatten(ideal, ratio);
+
+        return {
+            labels: dataBins,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Normal Dist Based on Sample Stats',
+                    data: idealBinCounts,
+                    backgroundColor: 'rgba(255, 99, 132, 0.4)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    type: 'bar',
+                    label: 'Raw Tweets (' + count + ')',
+                    data: dataBinCounts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }
+            ]
+        }
+    }
+
+    var userChartData = generateData(window.innerWidth);
 
     var userChartOptions = {
         title: {
@@ -176,15 +193,27 @@
                 }
             }]
         },
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        onResize: function() {
+            var data = generateData();
+            addData(chart, data.datasets, data.labels);
+            chart.update();
+        }
     }
 
     var ctx = document.getElementById('user-graph').getContext('2d');
+
     var chart = new Chart(ctx, {
         type: 'bar',
         data: userChartData,
         options: userChartOptions
     });
+
+    function addData(chart, data, label) {
+        chart.data.labels = label;
+        chart.data.datasets = data;
+    };
+
 
     /* DISPLAY STUFF */
     function toggleTweetTable() {
