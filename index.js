@@ -77,6 +77,12 @@ hbs.registerHelper('round', (toRound) => {
 
 // the bulk of the calculating.
 const getTweetMiddleware = async (req, res, next) => {
+    if (req.query.username == '') {
+        return res.render('404', {
+            name: '',
+            reason: 'you didn\'t put in a handle to look up'
+        });
+    }
     params['screen_name'] = req.query.username;
     let gradeArray = [];
     client.get('statuses/user_timeline', params).then((response) => {
