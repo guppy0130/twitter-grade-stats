@@ -19,7 +19,7 @@ let reloader;
 
 // some rendering defaults
 let index = {
-    deploy: false
+    deploy: true
 };
 
 // we'll also include reload if we're not in prod so we can see changes sooner
