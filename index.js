@@ -261,7 +261,7 @@ app.set('view engine', 'hbs')
         });
     })
     .get('/example.png', (req, res) => {
-        res.sendFile(`${__dirname}/example.png`);
+        res.sendFile(`${__dirname}/views/example.png`);
     })
     .get('*', (req, res) => {
         res.status(400).render('404', {
