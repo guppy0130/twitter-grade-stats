@@ -1,4 +1,4 @@
-{{#> base}} {{#* inline "styles"}}
+{{#> base description=title}} {{#* inline "styles"}}
 <style>
     body {
         width: 90vw;
@@ -134,7 +134,8 @@
 
     var userChartData = {
         labels: dataBins,
-        datasets: [{
+        datasets: [
+            {
                 type: 'line',
                 label: 'Normal Dist Based on Sample Stats',
                 data: idealBinCounts,

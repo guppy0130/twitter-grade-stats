@@ -19,8 +19,7 @@ let reloader;
 
 // some rendering defaults
 let index = {
-    title: 'Twitter Grade Stats',
-    deploy: true
+    deploy: false
 };
 
 // we'll also include reload if we're not in prod so we can see changes sooner
@@ -215,18 +214,33 @@ app.use(minify({
 }));
 app.use(compression());
 
+const getUrl = (req) => {
+    return `${getRoot(req)}${req.originalUrl}`;
+};
+
+const getRoot = (req) => {
+    return `${req.protocol}://${req.get('host')}`;
+};
+
 // setup app routes
 app.set('view engine', 'hbs')
     .set('views', './views')
     .get('/', (req, res) => {
-        res.render('index', index);
+        res.render('index', {
+            title: 'Twitter Grade Stats',
+            deploy: index.deploy,
+            description: 'Find out if your tweets are written at a fifth grader\'s level',
+            root: getRoot(req)
+        });
     })
     .get('/user/', getTweetMiddleware, async (req, res) => {
         res.render('user', {
             title: `${req.query.username}'s Tweets`,
             tweets: req.tweets,
             stats: req.stats,
-            deploy: index.deploy
+            deploy: index.deploy,
+            url: getUrl(req),
+            root: getRoot(req)
         });
     })
     .get('/particles.json', (req, res) => {
@@ -235,12 +249,18 @@ app.set('view engine', 'hbs')
     .get('/about', (req, res) => {
         res.render('about', {
             title: 'About this project',
-            deploy: index.deploy
+            deploy: index.deploy,
+            url: getUrl(req),
+            root: getRoot(req)
         });
+    })
+    .get('/example.png', (req, res) => {
+        res.sendFile(`${__dirname}/example.png`);
     })
     .get('*', (req, res) => {
         res.status(400).render('404', {
-            reason: 'that\'s not a URL we have'
+            reason: 'that\'s not a URL we have',
+            url: getUrl(req)
         });
     })
     .listen(port, () => {

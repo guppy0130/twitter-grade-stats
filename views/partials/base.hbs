@@ -1,12 +1,15 @@
 <!doctype html>
-<html>
+<html lang="en" prefix="og: http://ogp.me/ns/website#">
 
 <head>
     <title>
         {{#if title}} {{title}} {{else}} Twitter Grade Stats {{/if}}
     </title>
+    <meta charset="utf-8">
+    <meta name="description" content="{{description}}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Sunflower:500,700" rel="stylesheet">
+    {{> opengraph}}
     {{#if deploy}} {{> analytics}} {{/if}}
     <style>
         body {
