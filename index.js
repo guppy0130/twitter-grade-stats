@@ -1,6 +1,7 @@
 // Global vars
 const production = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
+const dotenv = require('dotenv').config();
 
 // Dependencies
 const twitter = require('twit');
@@ -229,46 +230,54 @@ const getRoot = (req) => {
 };
 
 // setup app routes
-app.set('view engine', 'hbs')
-    .set('views', './views')
-    .get('/', (req, res) => {
-        res.render('index', {
-            title: 'Twitter Grade Stats',
-            deploy: index.deploy,
-            description: 'Find out if your tweets are written at a fifth grader\'s level',
-            root: getRoot(req)
-        });
-    })
-    .get('/user/', getTweetMiddleware, async (req, res) => {
-        res.render('user', {
-            title: `${req.query.username}'s Tweets`,
-            tweets: req.tweets,
-            stats: req.stats,
-            deploy: index.deploy,
-            url: getUrl(req),
-            root: getRoot(req)
-        });
-    })
-    .get('/particles.json', (req, res) => {
-        res.sendFile(`${__dirname}/views/particles.json`);
-    })
-    .get('/about', (req, res) => {
-        res.render('about', {
-            title: 'About this project',
-            deploy: index.deploy,
-            url: getUrl(req),
-            root: getRoot(req)
-        });
-    })
-    .get('/example.png', (req, res) => {
-        res.sendFile(`${__dirname}/views/example.png`);
-    })
-    .get('*', (req, res) => {
-        res.status(400).render('404', {
-            reason: 'that\'s not a URL we have',
-            url: getUrl(req)
-        });
-    })
-    .listen(port, () => {
-        console.log(`Listening on ${port}`);
+app.set('view engine', 'hbs');
+
+app.set('views', './views');
+
+app.get('/', (req, res) => {
+    res.render('index', {
+        title: 'Twitter Grade Stats',
+        deploy: index.deploy,
+        description: 'Find out if your tweets are written at a fifth grader\'s level',
+        root: getRoot(req)
     });
+});
+
+app.get('/user/', getTweetMiddleware, async (req, res) => {
+    res.render('user', {
+        title: `${req.query.username}'s Tweets`,
+        tweets: req.tweets,
+        stats: req.stats,
+        deploy: index.deploy,
+        url: getUrl(req),
+        root: getRoot(req)
+    });
+});
+
+app.get('/particles.json', (req, res) => {
+    res.sendFile(`${__dirname}/views/particles.json`);
+});
+
+app.get('/about', (req, res) => {
+    res.render('about', {
+        title: 'About this project',
+        deploy: index.deploy,
+        url: getUrl(req),
+        root: getRoot(req)
+    });
+});
+
+app.get('/example.png', (req, res) => {
+    res.sendFile(`${__dirname}/views/example.png`);
+});
+
+app.get('*', (req, res) => {
+    res.status(400).render('404', {
+        reason: 'that\'s not a URL we have',
+        url: getUrl(req)
+    });
+});
+
+app.listen(port, () => {
+    console.log(`Listening on ${port}`);
+});
