@@ -1,5 +1,5 @@
 let font = 'Sunflower, sans-serif';
-let user = 'yanglangthang';
+let user = 'twitter';
 
 describe('it loads the site', () => {
     it('visits index', () => {
