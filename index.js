@@ -6,11 +6,11 @@ const port = process.env.PORT || 3000;
 const twitter = require('twit');
 const express = require('express');
 const textStatistics = require('text-statistics');
-const hbs = require('hbs');
+const hbs = require('express-hbs');
 const he = require('he');
 const ss = require('simple-statistics');
 const compression = require('compression');
-const minify = require('express-minify-html');
+const minify = require('express-minify-html-2');
 const enforce = require('express-sslify');
 
 // set up the express server
@@ -24,6 +24,7 @@ let index = {
 
 // we'll also include reload if we're not in prod so we can see changes sooner
 if (!production) {
+    // eslint-disable-next-line
     const dotenv = require('dotenv').config();
     const reload = require('reload');
     const fs = require('fs');
@@ -60,16 +61,15 @@ const params = {
  * input {string} the string to clean
  */
 function cleanText(input) {
+    /* eslint-disable */
     const regexURL = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/gim,
         regexHash = /\S*#(?:\[[^\]]+\]|\S+)/gim,
         regexUsername = /(^|[^@\w])@(\w{1,15})\b\ /gim,
         regexNewLine = /\n/gim;
+    /* eslint-enable */
     let result = he.decode(input.replace(regexURL, '').replace(regexHash, '').replace(regexUsername, '').replace(regexNewLine, '. ').trim() + '.');
     return (result == '.' ? ' ' : result);
 }
-
-// here are the partials we'll need
-hbs.registerPartials(__dirname + '/views/partials');
 
 // and some helper functions
 hbs.registerHelper('round', (toRound) => {
@@ -230,9 +230,11 @@ const getRoot = (req) => {
 };
 
 // setup app routes
+app.engine('hbs', hbs.express4({
+    partialsDir: `${__dirname}/views/partials`
+}));
 app.set('view engine', 'hbs');
-
-app.set('views', './views');
+app.set('views', `${__dirname}/views`);
 
 app.get('/', (req, res) => {
     res.render('index', {
