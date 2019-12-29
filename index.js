@@ -1,7 +1,6 @@
 // Global vars
 const production = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 3000;
-const dotenv = require('dotenv').config();
 
 // Dependencies
 const twitter = require('twit');
@@ -25,6 +24,7 @@ let index = {
 
 // we'll also include reload if we're not in prod so we can see changes sooner
 if (!production) {
+    const dotenv = require('dotenv').config();
     const reload = require('reload');
     const fs = require('fs');
     index.deploy = false;
