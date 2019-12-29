@@ -29,10 +29,11 @@ if (!production) {
     const reload = require('reload');
     const fs = require('fs');
     index.deploy = false;
-    reloader = reload(app);
-    fs.watch('./views', { recursive: true }, () => {
-        console.log('reloading...');
-        reloader.reload();
+    reload(app).then((reloader) => {
+        fs.watch('./views', { recursive: true }, () => {
+            console.log('reloading...');
+            reloader.reload();
+        });
     });
 }
 
