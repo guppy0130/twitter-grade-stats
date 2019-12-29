@@ -1,6 +1,10 @@
 let font = 'Sunflower, sans-serif';
 let user = 'twitter';
 
+Cypress.Screenshot.defaults({
+    screenshotOnRunFailure: false
+});
+
 describe('it loads the site', () => {
     it('visits index', () => {
         cy.visit('/');
