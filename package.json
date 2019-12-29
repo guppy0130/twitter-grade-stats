@@ -3,10 +3,6 @@
   "version": "0.0.1",
   "description": "A spinoff of an AP Stats project, now personalized!",
   "main": "index.js",
-  "engines": {
-    "node": "10.1.0",
-    "npm": "6.0.1"
-  },
   "dependencies": {
     "compression": "^1.7.4",
     "express": "^4.17.1",
